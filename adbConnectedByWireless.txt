@@ -1,0 +1,42 @@
+1.先用有线连接Android 使用adb shell进入Android终端
+2.使用mount命令 显示信息如下:
+rootfs / rootfs ro,seclabel 0 0
+tmpfs /dev tmpfs rw,seclabel,nosuid,relatime,mode=755 0 0
+devpts /dev/pts devpts rw,seclabel,relatime,mode=600 0 0
+proc /proc proc rw,relatime 0 0
+sysfs /sys sysfs rw,seclabel,relatime 0 0
+selinuxfs /sys/fs/selinux selinuxfs rw,relatime 0 0
+none /acct cgroup rw,relatime,cpuacct 0 0
+none /sys/fs/cgroup tmpfs rw,seclabel,relatime,mode=750,gid=1000 0 0
+tmpfs /mnt/asec tmpfs rw,seclabel,relatime,mode=755,gid=1000 0 0
+tmpfs /mnt/obb tmpfs rw,seclabel,relatime,mode=755,gid=1000 0 0
+none /dev/cpuctl cgroup rw,relatime,cpu 0 0
+/dev/block/platform/ff0f0000.rksdmmc/by-name/system /system ext4 ro,seclabel,noatime,nodiratime,noau
+to_da_alloc,data=ordered 0 0
+/dev/block/platform/ff0f0000.rksdmmc/by-name/cache /cache ext4 rw,seclabel,nosuid,nodev,noatime,nodi
+ratime,discard,noauto_da_alloc,data=ordered 0 0
+/dev/block/platform/ff0f0000.rksdmmc/by-name/metadata /metadata ext4 rw,seclabel,nosuid,nodev,noatim
+e,nodiratime,discard,noauto_da_alloc,data=ordered 0 0
+/dev/block/platform/ff0f0000.rksdmmc/by-name/userdata /data ext4 rw,seclabel,nosuid,nodev,noatime,no
+diratime,discard,noauto_da_alloc,errors=panic,data=ordered 0 0
+adb /dev/usb-ffs/adb functionfs rw,relatime 0 0
+/sys/kernel/debug /sys/kernel/debug debugfs rw,seclabel,relatime,mode=755 0 0
+tmpfs /mnt/usb_storage tmpfs rw,seclabel,relatime,mode=555,uid=1013,gid=1023 0 0
+/dev/fuse /mnt/shell/emulated fuse rw,nosuid,nodev,noexec,relatime,user_id=1023,group_id=1023,defaul
+t_permissions,allow_other 0 0
+/dev/block/vold/179:16 /mnt/internal_sd vfat rw,dirsync,nosuid,nodev,noexec,relatime,uid=1000,gid=10
+15,fmask=0007,dmask=0007,allow_utime=0020,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,erro
+rs=remount-ro 0 0
+/dev/block/vold/179:16 /mnt/secure/asec vfat rw,dirsync,nosuid,nodev,noexec,relatime,uid=1000,gid=10
+15,fmask=0007,dmask=0007,allow_utime=0020,codepage=437,iocharset=iso8859-1,shortname=mixed,utf8,erro
+rs=remount-ro 0 0
+
+3.在上述信息中找到/system挂载点的设备(本文显示14行)，如果是ro挂载的方式需要重新挂载，执行以下命令
+mount -o remount,rw /dev/block/platform/ff0f0000.rksdmmc/by-name/system /system
+
+4.将service.adb.tcp.port=5555追加至/system/build.prop文件中，执行以下命令：
+echo "service.adb.tcp.port=5555" >> /system/build.prop
+
+5.重新启动Android板。
+
+6.在windows dos行使用adb connect <Android ip> 命令连接指定Android板
